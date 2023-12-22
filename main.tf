@@ -10,7 +10,7 @@ locals {
   username              = "root"
   container_exec        = "/mnt/install.sh"
   container_environment = {
-    SSH_AUTHORIZED_KEYS = data.tls_public_key.swarm_public_key.public_key_openssh
+    SSH_AUTHORIZED_KEYS = base64encode(data.tls_public_key.swarm_public_key.public_key_openssh)
   }
   containers_master = [for i, item in var.containers_master : {
     name         = item.name
