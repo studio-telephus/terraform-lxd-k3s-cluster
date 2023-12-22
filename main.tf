@@ -29,7 +29,7 @@ data "tls_public_key" "swarm_public_key" {
 }
 
 resource "local_sensitive_file" "swarm_public_key_openssh_to_authorized_keys" {
-  filename = pathexpand("./filesystem/root/.ssh/authorized_keys")
+  filename = "${path.module}/filesystem/root/.ssh/authorized_keys"
   content  = data.tls_public_key.swarm_public_key.public_key_openssh
 }
 
@@ -39,7 +39,7 @@ module "lxd_swarm" {
   nicparent    = var.nicparent
   containers   = concat(local.containers_master, local.containers_worker)
   autostart    = var.autostart
-  exec_enabled = true
+  exec_enabled = var.exec_enabled
   depends_on = [
     local_sensitive_file.swarm_public_key_openssh_to_authorized_keys
   ]

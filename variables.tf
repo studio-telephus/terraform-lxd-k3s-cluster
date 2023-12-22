@@ -47,6 +47,11 @@ variable "autostart" {
   type = bool
 }
 
+variable "exec_enabled" {
+  type = bool
+  default = true
+}
+
 variable "image" {
   type    = string
   default = "images:debian/bookworm"
