@@ -1,3 +1,7 @@
+data "tls_public_key" "swarm_public_key" {
+  private_key_pem = base64decode(var.swarm_private_key)
+}
+
 locals {
   container_mount_dirs = [
     "${path.module}/filesystem-shared-ca-certificates",
@@ -5,7 +9,9 @@ locals {
   ]
   username              = "root"
   container_exec        = "/mnt/install.sh"
-  container_environment = {}
+  container_environment = {
+    SSH_AUTHORIZED_KEYS = data.tls_public_key.swarm_public_key.public_key_openssh
+  }
   containers_master = [for i, item in var.containers_master : {
     name         = item.name
     ipv4_address = item.ipv4_address
@@ -24,15 +30,6 @@ locals {
   }]
 }
 
-data "tls_public_key" "swarm_public_key" {
-  private_key_pem = base64decode(var.swarm_private_key)
-}
-
-resource "local_sensitive_file" "swarm_public_key_openssh_to_authorized_keys" {
-  filename = "${path.module}/filesystem/root/.ssh/authorized_keys"
-  content  = data.tls_public_key.swarm_public_key.public_key_openssh
-}
-
 module "lxd_swarm" {
   source       = "github.com/studio-telephus/terraform-lxd-swarm.git?ref=1.0.1"
   image        = var.image
@@ -40,9 +37,6 @@ module "lxd_swarm" {
   containers   = concat(local.containers_master, local.containers_worker)
   autostart    = var.autostart
   exec_enabled = var.exec_enabled
-  depends_on = [
-    local_sensitive_file.swarm_public_key_openssh_to_authorized_keys
-  ]
 }
 
 module "k3s" {
