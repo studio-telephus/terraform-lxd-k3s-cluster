@@ -7,8 +7,8 @@ locals {
     "${path.module}/filesystem-shared-ca-certificates",
     "${path.module}/filesystem",
   ]
-  username              = "root"
-  container_exec        = "/mnt/install.sh"
+  username       = "root"
+  container_exec = "/mnt/install.sh"
   container_environment = {
     SSH_AUTHORIZED_KEYS = base64encode(data.tls_public_key.swarm_public_key.public_key_openssh)
   }

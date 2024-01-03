@@ -48,7 +48,7 @@ variable "autostart" {
 }
 
 variable "exec_enabled" {
-  type = bool
+  type    = bool
   default = true
 }
 
