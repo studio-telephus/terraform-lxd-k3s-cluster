@@ -5,7 +5,7 @@ variable "cluster_domain" {
 
 variable "k3s_version" {
   type    = string
-  default = "v1.28.4+k3s2"
+  default = "v1.28.5+k3s1"
 }
 
 variable "swarm_private_key" {
@@ -20,6 +20,16 @@ variable "cidr_pods" {
 
 variable "cidr_services" {
   type = string
+}
+
+variable "k3s_install_env_vars" {
+  type = map(any)
+  default = {}
+}
+
+variable "global_flags" {
+  type = list(string)
+  default = []
 }
 
 variable "drain_timeout" {

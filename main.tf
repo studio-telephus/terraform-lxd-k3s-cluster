@@ -43,9 +43,8 @@ module "k3s" {
   source         = "xunleii/k3s/module"
   k3s_version    = var.k3s_version
   cluster_domain = var.cluster_domain
-  k3s_install_env_vars = {
-    "K3S_KUBECONFIG_MODE" = "644"
-  }
+  k3s_install_env_vars = var.k3s_install_env_vars
+  global_flags = var.global_flags
   drain_timeout  = var.drain_timeout
   managed_fields = ["label", "taint"]
   cidr = {
