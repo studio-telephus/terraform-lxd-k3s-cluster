@@ -39,14 +39,22 @@ module "lxd_swarm" {
   exec_enabled = var.exec_enabled
 }
 
+resource "time_sleep" "wait_for_lxd_swarm" {
+  depends_on = [
+    module.lxd_swarm
+  ]
+  create_duration = "5s"
+}
+
 module "k3s" {
-  source         = "xunleii/k3s/module"
-  k3s_version    = var.k3s_version
-  cluster_domain = var.cluster_domain
+  source               = "xunleii/k3s/module"
+  k3s_version          = var.k3s_version
+  cluster_domain       = var.cluster_domain
   k3s_install_env_vars = var.k3s_install_env_vars
-  global_flags = var.global_flags
-  drain_timeout  = var.drain_timeout
-  managed_fields = ["label", "taint"]
+  global_flags         = var.global_flags
+  drain_timeout        = var.drain_timeout
+  managed_fields       = var.managed_fields
+  use_sudo             = var.use_sudo
   cidr = {
     pods     = var.cidr_pods
     services = var.cidr_services
@@ -58,9 +66,13 @@ module "k3s" {
         user        = local.username
         host        = item.ipv4_address
         private_key = trimspace(base64decode(var.swarm_private_key))
+        timeout     = var.node_connection_timeout
       }
+      flags  = var.master_flags
       labels = { "node.kubernetes.io/type" = "master" }
-      taints = { "node.k3s.io/type" = "server:NoSchedule" }
+      annotations = {
+        "server.index" : i
+      }
     }
   }
   agents = {
@@ -70,10 +82,14 @@ module "k3s" {
         user        = local.username
         host        = item.ipv4_address
         private_key = trimspace(base64decode(var.swarm_private_key))
+        timeout     = var.node_connection_timeout
       }
-      labels = { "node.kubernetes.io/pool" = "service-pool" }
+      labels = { "node.kubernetes.io/pool" = "worker-pool" }
+      annotations = {
+        "worker.index" : i
+      }
     }
   }
-  depends_on_ = module.lxd_swarm
-  depends_on  = [module.lxd_swarm]
+  depends_on_ = time_sleep.wait_for_lxd_swarm
+  depends_on  = [time_sleep.wait_for_lxd_swarm]
 }

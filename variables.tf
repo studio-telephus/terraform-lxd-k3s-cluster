@@ -23,13 +23,26 @@ variable "cidr_services" {
 }
 
 variable "k3s_install_env_vars" {
-  type = map(any)
+  type    = map(any)
   default = {}
 }
 
 variable "global_flags" {
-  type = list(string)
+  type    = list(string)
   default = []
+}
+
+variable "master_flags" {}
+
+variable "managed_fields" {
+  type    = list(string)
+  default = ["label", "taint", "annotation"]
+}
+
+variable "use_sudo" {
+  type        = bool
+  description = "Whether or not to use kubectl with sudo during cluster setup."
+  default     = false
 }
 
 variable "drain_timeout" {
@@ -69,4 +82,8 @@ variable "image" {
 
 variable "nicparent" {
   type = string
+}
+
+variable "node_connection_timeout" {
+  default = "60s"
 }
