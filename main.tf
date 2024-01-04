@@ -70,6 +70,7 @@ module "k3s" {
       }
       flags  = var.master_flags
       labels = { "node.kubernetes.io/type" = "master" }
+      taints = {"node.k3s.io/type" = "server:NoSchedule"}
       annotations = {
         "server.index" : i
       }
@@ -85,6 +86,7 @@ module "k3s" {
         timeout     = var.node_connection_timeout
       }
       labels = { "node.kubernetes.io/pool" = "worker-pool" }
+      taints = {"node.k3s.io/type" = "server:NoSchedule"}
       annotations = {
         "worker.index" : i
       }
